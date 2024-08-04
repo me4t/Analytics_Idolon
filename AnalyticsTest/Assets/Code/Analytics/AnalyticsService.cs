@@ -74,7 +74,7 @@ namespace Code.Analytics
     public void TrackEvent(string type, string data)
     {
       _eventBuffer.Add(new EventData(type, data));
-      _serverEventSender.SendBufferedEvents();
+      _serverEventSender.SendBufferedEvents(withDelay:true);
       MakeBackUp(_eventBuffer.Events.ToEventList()); 
     }
   }
