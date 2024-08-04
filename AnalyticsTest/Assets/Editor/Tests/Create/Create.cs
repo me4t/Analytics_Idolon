@@ -2,6 +2,7 @@ using Code.Analytics;
 using Code.EventBufferService;
 using Code.SaveLoadEventService;
 using Code.ServerSender;
+using Code.ServerSender.WebRequestSender;
 
 namespace Editor.Tests.Create
 {

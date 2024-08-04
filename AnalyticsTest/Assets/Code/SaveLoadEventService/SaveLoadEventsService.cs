@@ -7,14 +7,19 @@ namespace Code.SaveLoadEventService
 {
   public class SaveLoadEventsService : ISaveLoadEventService
   {
-    private static string EventFilePath => Path.Combine(Application.persistentDataPath, "events.json");
+    private readonly string _eventFilePath;
+
+    public SaveLoadEventsService()
+    {
+      _eventFilePath = Path.Combine(Application.persistentDataPath, "events.json");
+    }
 
     public void Save(EventList eventList)
     {
       try
       {
         string json = JsonUtility.ToJson(eventList);
-        File.WriteAllText(EventFilePath, json);
+        File.WriteAllText(_eventFilePath, json);
       }
       catch (Exception ex)
       {
@@ -28,9 +33,9 @@ namespace Code.SaveLoadEventService
 
       try
       {
-        if (File.Exists(EventFilePath))
+        if (File.Exists(_eventFilePath))
         {
-          string json = File.ReadAllText(EventFilePath);
+          string json = File.ReadAllText(_eventFilePath);
           eventLists = JsonUtility.FromJson<EventList>(json);
         }
       }

@@ -21,8 +21,14 @@ namespace Code.Analytics
 
     public void Initialize()
     {
-      PushToBufferEvents();
       SubscribeOnComplete();
+      PushToBufferEvents();
+      SendEvents();
+    }
+
+    private void SendEvents()
+    {
+      _serverEventSender.SendBufferedEvents(withDelay: false);
     }
 
     private void SubscribeOnComplete()
@@ -68,6 +74,7 @@ namespace Code.Analytics
     public void TrackEvent(string type, string data)
     {
       _eventBuffer.Add(new EventData(type, data));
+      _serverEventSender.SendBufferedEvents();
       MakeBackUp(_eventBuffer.Events.ToEventList()); 
     }
   }
