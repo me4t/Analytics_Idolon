@@ -7,9 +7,31 @@ using UnityEngine.Networking;
 
 namespace Code.ServerSender
 {
+  public interface IWebRequestSender
+  {
+    UnityWebRequest SendWebRequest(string url, string json);
+  }
+
+  public class WebRequestSender : IWebRequestSender
+  {
+    public UnityWebRequest SendWebRequest(string url, string json)
+    {
+        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
+        UnityWebRequest www = new UnityWebRequest(url, "POST")
+        {
+            uploadHandler = new UploadHandlerRaw(bodyRaw),
+            downloadHandler = new DownloadHandlerBuffer()
+        };
+        www.SetRequestHeader("Content-Type", "application/json");
+  
+        return www;
+    }
+  }
+
   public class ServerEventSender : IServerEventSender
   {
     private readonly IEventBuffer _eventBuffer;
+    private readonly IWebRequestSender _webRequestSender;
     private string _serverUrl;
     private float _sendCooldown;
     private bool _isSending;
@@ -21,9 +43,10 @@ namespace Code.ServerSender
       set => _serverUrl = value;
     }
 
-    public ServerEventSender(IEventBuffer eventBuffer)
+    public ServerEventSender(IEventBuffer eventBuffer,IWebRequestSender webRequestSender)
     {
       _eventBuffer = eventBuffer;
+      _webRequestSender = webRequestSender;
     }
 
 
@@ -47,18 +70,11 @@ namespace Code.ServerSender
 
       EventList eventList = new EventList { events = new List<EventData>(_eventBuffer.Events) };
       string json = JsonUtility.ToJson(eventList);
-      byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
+      UnityWebRequest unityWebRequest = _webRequestSender.SendWebRequest(_serverUrl, json);
 
-      UnityWebRequest www = new UnityWebRequest(_serverUrl, "POST")
+      unityWebRequest.SendWebRequest().completed += (_) =>
       {
-          uploadHandler = new UploadHandlerRaw(bodyRaw),
-          downloadHandler = new DownloadHandlerBuffer()
-      };
-      www.SetRequestHeader("Content-Type", "application/json");
-
-      www.SendWebRequest().completed += (asyncOperation) =>
-      {
-        if (www.result == UnityWebRequest.Result.Success)
+        if (unityWebRequest.result == UnityWebRequest.Result.Success)
         {
           OnEventsSent?.Invoke(eventList);
         }

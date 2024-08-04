@@ -42,7 +42,7 @@ namespace Code.Analytics
         _eventBuffer.Add(eventData);
     }
 
-    private void OnEventsSent(EventList eventList)
+    public void OnEventsSent(EventList eventList)
     {
       RemoveFromBackUp(eventList);
       RemoveEventsFromBuffer(eventList);

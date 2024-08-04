@@ -17,7 +17,8 @@ namespace Code
     {
       _buffer = new EventBuffer();
       _saveLoadService = new SaveLoadEventsService();
-      _serverSender = new ServerEventSender(_buffer);
+      WebRequestSender webSender = new WebRequestSender(); 
+      _serverSender = new ServerEventSender(_buffer,webSender);
       _serverSender.URL = "Your/url";
       _analyticsService = new AnalyticsService(_saveLoadService, _buffer,_serverSender);
     }
